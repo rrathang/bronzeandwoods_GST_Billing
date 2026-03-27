@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Modern GST Invoice Generator</title>
+    <!-- Google Fonts: Inter -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <!-- html2pdf for PDF generation -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="app-container">
+        <!-- Main Controls (Excluded from print) -->
+        <div class="controls no-print">
+            <h2>Invoice Controls</h2>
+            <div class="control-actions">
+                <button id="add-item-btn" class="btn primary">Add New Item</button>
+                <button id="download-pdf-btn" class="btn success">Download PDF</button>
+            </div>
+            
+            <div class="tax-toggles">
+                <label><input type="checkbox" id="apply-cgst-sgst" checked> Apply CGST & SGST</label>
+                <label><input type="checkbox" id="apply-igst"> Apply IGST</label>
+            </div>
+        </div>
+
+        <!-- The Document to be exported -->
+        <div id="invoice-document" class="invoice-wrapper">
+            <!-- Header Section -->
+            <header class="invoice-header">
+                <div class="company-details">
+                    <h1 id="config-biz-name" class="biz-name">Business Name</h1>
+                    <p id="config-biz-address1">Address Line 1</p>
+                    <p id="config-biz-address2">Address Line 2</p>
+                    <p>Phone: <span id="config-biz-phone"></span> | Email: <span id="config-biz-email"></span></p>
+                    <p class="gst-text"><strong>GSTIN:</strong> <span id="config-biz-gst"></span></p>
+                </div>
+                <div class="invoice-title">
+                    <h2>TAX INVOICE</h2>
+                </div>
+            </header>
+
+            <div class="invoice-meta">
+                <div class="bill-to module">
+                    <h3>Bill To:</h3>
+                    <div class="input-group">
+                        <input type="text" id="client-name" placeholder="Client Name" value="Generic client">
+                    </div>
+                    <div class="input-group">
+                        <textarea id="client-address" placeholder="Client Address" rows="3">Street 123, Client City</textarea>
+                    </div>
+                    <div class="input-group">
+                        <input type="text" id="client-gst" placeholder="Client GSTIN (Optional)">
+                    </div>
+                </div>
+                <div class="invoice-details module">
+                    <div class="detail-row">
+                        <span class="label">Invoice No:</span>
+                        <input type="text" id="invoice-no" value="INV-0001">
+                    </div>
+                    <div class="detail-row">
+                        <span class="label">Invoice Date:</span>
+                        <input type="date" id="invoice-date">
+                    </div>
+                    <div class="detail-row">
+                        <span class="label">Due Date:</span>
+                        <input type="date" id="due-date">
+                    </div>
+                </div>
+            </div>
+
+            <div class="items-section">
+                <table class="items-table">
+                    <thead>
+                        <tr>
+                            <th width="40%">Item Description</th>
+                            <th width="15%">HSN/SAC</th>
+                            <th width="10%">Qty</th>
+                            <th width="15%">Rate</th>
+                            <th width="15%">Amount</th>
+                            <th width="5%" class="no-print"></th>
+                        </tr>
+                    </thead>
+                    <tbody id="items-tbody">
+                        <!-- Items injected here via JS -->
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="invoice-summary">
+                <div class="notes-section">
+                    <h3>Bank Details:</h3>
+                    <p>Bank: <strong id="config-bank-name"></strong></p>
+                    <p>Account Name: <strong id="config-bank-acc-name"></strong></p>
+                    <p>Account No: <strong id="config-bank-acc-no"></strong></p>
+                    <p>IFSC: <strong id="config-bank-ifsc"></strong></p>
+                    
+                    <div class="terms">
+                        <h3>Terms & Conditions:</h3>
+                        <ol>
+                            <li>All disputes are subject to local jurisdiction.</li>
+                            <li>Goods once sold will not be taken back.</li>
+                        </ol>
+                    </div>
+                </div>
+                
+                <div class="totals-section">
+                    <div class="total-row">
+                        <span>Subtotal:</span>
+                        <span id="sub-total">₹0.00</span>
+                    </div>
+                    <div class="total-row tax-row" id="row-cgst">
+                        <span>CGST (<span id="cgst-rate">0</span>%):</span>
+                        <span id="cgst-amount">₹0.00</span>
+                    </div>
+                    <div class="total-row tax-row" id="row-sgst">
+                        <span>SGST (<span id="sgst-rate">0</span>%):</span>
+                        <span id="sgst-amount">₹0.00</span>
+                    </div>
+                    <div class="total-row tax-row" id="row-igst" style="display: none;">
+                        <span>IGST (<span id="igst-rate">0</span>%):</span>
+                        <span id="igst-amount">₹0.00</span>
+                    </div>
+                    <div class="total-row grand-total">
+                        <span>Grand Total:</span>
+                        <span id="grand-total">₹0.00</span>
+                    </div>
+                    <div class="amount-words">
+                        <p>Amount in words: <br><strong id="amount-in-words">Rupees Zero Only</strong></p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="signature-section">
+                <div class="auth-sign">
+                    <p>For <strong id="config-sign-name">Business Name</strong></p>
+                    <div class="sign-space"></div>
+                    <p>Authorized Signatory</p>
+                </div>
+            </div>
+            
+        </div>
+    </div>
+
+    <script src="config.js"></script>
+    <script src="app.js"></script>
+</body>
+</html>
