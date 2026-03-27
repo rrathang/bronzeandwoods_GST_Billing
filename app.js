@@ -242,7 +242,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const clone = element.cloneNode(true);
         const printContainer = document.createElement('div');
         printContainer.style.position = 'absolute';
-        printContainer.style.top = '-9999px';
+        printContainer.style.top = '0'; // Keep top 0 to prevent vertical offset/gaps
         printContainer.style.left = '-9999px';
         printContainer.style.width = '1000px'; // Give it plenty of room to stretch
         printContainer.style.background = 'white';
@@ -261,7 +261,7 @@ document.addEventListener('DOMContentLoaded', () => {
             margin:       0.2, // Small external margin
             filename:     `Invoice-${invoiceNo}.pdf`,
             image:        { type: 'jpeg', quality: 0.98 },
-            html2canvas:  { scale: 2, useCORS: true, letterRendering: true }, 
+            html2canvas:  { scale: 2, useCORS: true, letterRendering: true, scrollY: 0, scrollX: 0 }, 
             jsPDF:        { unit: 'in', format: 'a4', orientation: 'portrait' }
         };
         
